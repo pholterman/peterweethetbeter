@@ -85,7 +85,11 @@ export async function getVoteCounts(
   const counts: VoteCounts = { total: 0 };
   for (const row of rows) {
     const count = parseInt(row.count);
-    counts[row.vote] = count;
+    // Map legacy "left"/"right" to index "0"/"1"
+    let key = row.vote;
+    if (key === "left") key = "0";
+    else if (key === "right") key = "1";
+    counts[key] = (counts[key] || 0) + count;
     counts.total += count;
   }
 
