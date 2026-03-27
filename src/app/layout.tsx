@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700", "800"] });
 
 export const metadata: Metadata = {
   title: "Peter weet het beter",
@@ -17,26 +17,35 @@ export default function RootLayout({
 }) {
   return (
     <html lang="nl">
-      <body className={`${inter.className} bg-kelly-50 text-gray-900 min-h-screen`}>
-        <header className="bg-kelly-500 shadow-lg">
-          <div className="max-w-2xl mx-auto px-4 py-5">
+      <body className={`${dmSans.className} bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-kelly-50/50 via-gray-50 to-gray-100 text-gray-900 min-h-screen flex flex-col`}>
+        <header className="gradient-hero sticky top-0 z-50 shadow-lg shadow-kelly-500/20">
+          <div className="max-w-3xl mx-auto px-5 py-4 flex items-center justify-between">
             <Link href="/" className="group flex items-center gap-3">
-              <span className="text-4xl" role="img" aria-label="wijzend">&#9757;</span>
-              <span className="text-3xl font-extrabold text-white group-hover:scale-105 transition-transform">
-                Peter weet het beter
-              </span>
+              <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                &#9757;
+              </div>
+              <div>
+                <span className="text-xl font-extrabold text-white tracking-tight">
+                  Peter weet het beter
+                </span>
+                <span className="hidden sm:block text-xs text-white/70 font-medium">
+                  Dagelijks een mening. Altijd gelijk.
+                </span>
+              </div>
             </Link>
-            <p className="text-kelly-100 text-sm mt-1 font-medium">
-              Dagelijks een mening. Altijd gelijk. Toch?
-            </p>
           </div>
         </header>
-        <main className="max-w-2xl mx-auto px-4 py-8">
+        <main className="max-w-3xl mx-auto w-full px-5 py-8 flex-1">
           {children}
         </main>
-        <footer className="bg-kelly-500 mt-16">
-          <div className="max-w-2xl mx-auto px-4 py-6 text-sm text-kelly-100 font-medium">
-            &copy; {new Date().getFullYear()} Peter weet het beter &mdash; altijd gelijk, nooit bescheiden
+        <footer className="gradient-dark">
+          <div className="max-w-3xl mx-auto px-5 py-6 flex items-center justify-between">
+            <span className="text-sm text-kelly-300/60 font-medium">
+              &copy; {new Date().getFullYear()} Peter weet het beter
+            </span>
+            <span className="text-xs text-kelly-300/40">
+              Altijd gelijk, nooit bescheiden
+            </span>
           </div>
         </footer>
       </body>

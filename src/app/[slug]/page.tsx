@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import {
   getCategoryBySlug,
   getVoteCounts,
@@ -39,26 +40,45 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <div>
-      <h1 className="text-4xl font-extrabold mb-1 text-kelly-600 animate-bounce-in">{category.name}</h1>
-      {category.description && (
-        <p className="text-lg text-kelly-700 font-medium mb-6">{category.description}</p>
-      )}
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-kelly-500 font-medium mb-6 transition-colors"
+      >
+        &larr; Alle categorieën
+      </Link>
+
+      <div className="mb-8 animate-fade-up">
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+          <span className="text-gradient">{category.name}</span>
+        </h1>
+        {category.description && (
+          <p className="text-lg text-gray-500 font-medium mt-2">{category.description}</p>
+        )}
+      </div>
 
       {/* Today's verdict */}
-      <section className="bg-white border-2 border-kelly-300 rounded-2xl p-6 mb-8 shadow-md">
-        <h2 className="text-sm font-extrabold text-kelly-500 uppercase tracking-wide mb-2">&#128197; Vandaag</h2>
+      <section className="glass-strong rounded-3xl p-6 sm:p-8 mb-8 shadow-lg shadow-kelly-500/5 animate-scale-in">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 rounded-full bg-kelly-400 animate-pulse" />
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Vandaag</h2>
+        </div>
         {todayVerdict ? (
           <div>
-            <p className="text-xl mb-1">
-              <span className="text-kelly-500 font-bold">&#9757; Peter kiest:</span>{" "}
-              <span className="font-extrabold text-kelly-700 text-2xl">
-                {todayVerdict.verdict === "left"
-                  ? category.option_left
-                  : category.option_right}
-              </span>
-            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-xl gradient-kelly flex items-center justify-center text-white text-sm shadow-md shadow-kelly-500/30">
+                &#9757;
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium">Peter kiest</p>
+                <p className="font-extrabold text-2xl text-gray-900">
+                  {todayVerdict.verdict === "left"
+                    ? category.option_left
+                    : category.option_right}
+                </p>
+              </div>
+            </div>
             {todayVerdict.reason && (
-              <p className="text-gray-600 text-sm italic mb-4 bg-kelly-50 rounded-xl px-4 py-2">
+              <p className="text-gray-500 text-sm italic mb-5 bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
                 &ldquo;{todayVerdict.reason}&rdquo;
               </p>
             )}
@@ -67,13 +87,14 @@ export default async function CategoryPage({ params }: Props) {
               optionLeft={category.option_left}
               optionRight={category.option_right}
               voteCounts={voteCounts}
+              petersChoice={todayVerdict.verdict as "left" | "right"}
             />
           </div>
         ) : (
-          <div className="text-center py-4">
+          <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
             <p className="text-4xl mb-2">&#129300;</p>
             <p className="text-gray-400 font-medium">
-              Peter heeft zich nog niet uitgesproken vandaag.
+              Peter heeft zich nog niet uitgesproken vandaag
             </p>
           </div>
         )}
@@ -81,34 +102,33 @@ export default async function CategoryPage({ params }: Props) {
 
       {/* History */}
       {pastVerdicts.length > 0 && (
-        <section>
-          <h2 className="text-xl font-extrabold mb-4 text-kelly-700">&#128218; Geschiedenis</h2>
-          <div className="space-y-3">
+        <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
+          <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Geschiedenis</h2>
+          <div className="space-y-2">
             {pastVerdicts.map((v) => (
               <div
                 key={v.id}
-                className="bg-white border-2 border-kelly-100 rounded-2xl p-4 text-sm hover:border-kelly-300 transition-colors"
+                className="glass-strong rounded-2xl px-5 py-4 flex items-center justify-between hover:shadow-md transition-all duration-200"
               >
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 font-medium">
+                <div>
+                  <span className="text-sm text-gray-500 font-medium">
                     {new Date(v.date).toLocaleDateString("nl-NL", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
+                      weekday: "short",
                       day: "numeric",
+                      month: "short",
                     })}
                   </span>
-                  <span className="font-extrabold text-kelly-600 bg-kelly-100 rounded-lg px-3 py-1">
-                    {v.verdict === "left"
-                      ? category.option_left
-                      : category.option_right}
-                  </span>
+                  {v.reason && (
+                    <p className="text-xs text-gray-400 italic mt-0.5">
+                      &ldquo;{v.reason}&rdquo;
+                    </p>
+                  )}
                 </div>
-                {v.reason && (
-                  <p className="text-gray-500 italic mt-2 bg-kelly-50 rounded-lg px-3 py-1.5">
-                    &ldquo;{v.reason}&rdquo;
-                  </p>
-                )}
+                <span className="font-bold text-sm text-kelly-700 bg-kelly-50 border border-kelly-200 rounded-xl px-3 py-1.5">
+                  {v.verdict === "left"
+                    ? category.option_left
+                    : category.option_right}
+                </span>
               </div>
             ))}
           </div>

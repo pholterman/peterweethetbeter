@@ -7,3 +7,24 @@
     @apply antialiased;
   }
 }
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+  }
+  .glass-strong {
+    @apply bg-white/90 backdrop-blur-2xl border border-white/30;
+  }
+  .gradient-kelly {
+    @apply bg-gradient-to-br from-kelly-400 via-kelly-500 to-kelly-600;
+  }
+  .gradient-hero {
+    @apply bg-gradient-to-br from-kelly-500 via-kelly-400 to-emerald-400;
+  }
+  .gradient-dark {
+    @apply bg-gradient-to-br from-kelly-900 via-kelly-950 to-gray-950;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-kelly-500 to-emerald-500;
+  }
+}

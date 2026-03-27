@@ -8,6 +8,7 @@ type Props = {
   optionLeft: string;
   optionRight: string;
   voteCounts: { left: number; right: number; total: number };
+  petersChoice?: "left" | "right" | null;
 };
 
 async function getFingerprint(): Promise<string> {
@@ -28,13 +29,21 @@ async function getFingerprint(): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts }: Props) {
+export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts, petersChoice }: Props) {
   const [state, formAction, isPending] = useActionState(castVote, {});
   const [fingerprint, setFingerprint] = useState("");
+  const [voted, setVoted] = useState<"left" | "right" | null>(null);
 
   useEffect(() => {
     getFingerprint().then(setFingerprint);
   }, []);
+
+  // Track which side was voted on
+  useEffect(() => {
+    if (state && !state.error && voted === null && isPending) {
+      // Will be set by form submission handler
+    }
+  }, [state, voted, isPending]);
 
   const leftPercent =
     voteCounts.total > 0
@@ -44,50 +53,97 @@ export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts }:
     voteCounts.total > 0
       ? Math.round((voteCounts.right / voteCounts.total) * 100)
       : 0;
+  const hasVotes = voteCounts.total > 0;
+  const leftIsWinning = leftPercent >= rightPercent;
+
+  function handleVote(side: "left" | "right") {
+    setVoted(side);
+  }
 
   return (
-    <div className="mt-4">
-      <p className="text-sm font-bold text-kelly-600 mb-2">Ben jij het eens met Peter?</p>
-      <div className="flex gap-3">
-        <form action={formAction} className="flex-1">
+    <div className="mt-5">
+      <hr className="border-gray-100 mb-5" />
+      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Ben jij het eens met Peter?</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <form action={formAction} onSubmit={() => handleVote("left")}>
           <input type="hidden" name="category_id" value={categoryId} />
           <input type="hidden" name="vote" value="left" />
           <input type="hidden" name="fingerprint" value={fingerprint} />
           <button
             type="submit"
             disabled={isPending || !fingerprint}
-            className="w-full bg-kelly-500 text-white font-bold rounded-xl px-4 py-4 text-base hover:bg-kelly-400 hover:scale-105 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:hover:scale-100 animate-pulse-green"
+            className={`w-full relative overflow-hidden rounded-2xl px-5 py-5 sm:py-6 font-bold text-lg sm:text-xl transition-all duration-300 border-2 shadow-sm
+              ${voted === "left"
+                ? "gradient-kelly text-white border-kelly-500 shadow-lg shadow-kelly-500/30 scale-[1.02]"
+                : isPending
+                  ? "border-gray-200 bg-gray-50 text-gray-400 animate-shimmer bg-[length:200%_100%] bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50"
+                  : "border-kelly-200 bg-white text-gray-800 hover:border-kelly-400 hover:bg-kelly-50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              }`}
           >
-            {optionLeft}
-            {voteCounts.total > 0 && (
-              <span className="block text-sm font-extrabold mt-1">{leftPercent}%</span>
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {petersChoice === "left" && <span className="text-sm">&#9757;</span>}
+              {optionLeft}
+              {voted === "left" && <span className="text-sm">&#10003;</span>}
+            </span>
+            {hasVotes && (
+              <div className="mt-3 relative z-10">
+                <div className="w-full bg-gray-200/50 rounded-full h-3 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${leftIsWinning ? "gradient-kelly" : "bg-gray-300"}`}
+                    style={{ width: `${leftPercent}%` }}
+                  />
+                </div>
+                <span className={`text-sm font-extrabold mt-1.5 block ${voted === "left" ? "text-white/90" : leftIsWinning ? "text-kelly-600" : "text-gray-400"}`}>
+                  {leftPercent}%
+                </span>
+              </div>
             )}
           </button>
         </form>
-        <form action={formAction} className="flex-1">
+        <form action={formAction} onSubmit={() => handleVote("right")}>
           <input type="hidden" name="category_id" value={categoryId} />
           <input type="hidden" name="vote" value="right" />
           <input type="hidden" name="fingerprint" value={fingerprint} />
           <button
             type="submit"
             disabled={isPending || !fingerprint}
-            className="w-full bg-kelly-500 text-white font-bold rounded-xl px-4 py-4 text-base hover:bg-kelly-400 hover:scale-105 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:hover:scale-100 animate-pulse-green"
+            className={`w-full relative overflow-hidden rounded-2xl px-5 py-5 sm:py-6 font-bold text-lg sm:text-xl transition-all duration-300 border-2 shadow-sm
+              ${voted === "right"
+                ? "gradient-kelly text-white border-kelly-500 shadow-lg shadow-kelly-500/30 scale-[1.02]"
+                : isPending
+                  ? "border-gray-200 bg-gray-50 text-gray-400 animate-shimmer bg-[length:200%_100%] bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50"
+                  : "border-kelly-200 bg-white text-gray-800 hover:border-kelly-400 hover:bg-kelly-50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              }`}
           >
-            {optionRight}
-            {voteCounts.total > 0 && (
-              <span className="block text-sm font-extrabold mt-1">{rightPercent}%</span>
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {petersChoice === "right" && <span className="text-sm">&#9757;</span>}
+              {optionRight}
+              {voted === "right" && <span className="text-sm">&#10003;</span>}
+            </span>
+            {hasVotes && (
+              <div className="mt-3 relative z-10" style={{ animationDelay: "200ms" }}>
+                <div className="w-full bg-gray-200/50 rounded-full h-3 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${!leftIsWinning ? "gradient-kelly" : "bg-gray-300"}`}
+                    style={{ width: `${rightPercent}%` }}
+                  />
+                </div>
+                <span className={`text-sm font-extrabold mt-1.5 block ${voted === "right" ? "text-white/90" : !leftIsWinning ? "text-kelly-600" : "text-gray-400"}`}>
+                  {rightPercent}%
+                </span>
+              </div>
             )}
           </button>
         </form>
       </div>
       {state.error && (
-        <p className="text-red-500 text-xs mt-2 bg-red-50 rounded-lg px-3 py-2 font-medium">
-          &#128683; {state.error}
+        <p className="text-red-500 text-xs mt-3 bg-red-50 rounded-xl px-3 py-2 font-medium border border-red-100">
+          {state.error}
         </p>
       )}
-      {voteCounts.total > 0 && (
-        <p className="text-xs text-kelly-600 font-medium mt-2 text-center">
-          &#128200; {voteCounts.total} stem{voteCounts.total !== 1 ? "men" : ""}
+      {hasVotes && (
+        <p className="text-sm text-gray-500 font-medium mt-3 text-center">
+          &#128101; {voteCounts.total} stem{voteCounts.total !== 1 ? "men" : ""}
         </p>
       )}
     </div>
