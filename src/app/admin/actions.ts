@@ -38,8 +38,6 @@ export async function submitVerdict(formData: FormData): Promise<void> {
     return;
   }
 
-  const date = isDaily ? "CURRENT_DATE" : "9999-12-31";
-
   if (isDaily) {
     await sql`
       INSERT INTO daily_verdicts (category_id, date, verdict, reason, updated_at)

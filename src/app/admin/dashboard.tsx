@@ -1,5 +1,5 @@
 import { sql } from "@/lib/db";
-import { Category, Verdict, getOptions, resolveVerdictLabel, getVerdictDate } from "@/lib/queries";
+import { Category, Verdict, getOptions, resolveVerdictLabel } from "@/lib/queries";
 import { logout, submitVerdict, toggleCategory } from "./actions";
 import { CategoryForm } from "./category-form";
 
