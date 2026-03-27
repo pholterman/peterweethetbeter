@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Category, Verdict, VoteCounts } from "@/lib/queries";
+import { Category, Verdict, VoteCounts, getOptions, resolveVerdictLabel, getVerdictDate } from "@/lib/queries";
 import { VoteButtons } from "./vote-buttons";
 
 type Props = {
@@ -9,12 +9,9 @@ type Props = {
 };
 
 export function VerdictCard({ category, verdict, voteCounts }: Props) {
-  const winnerLabel =
-    verdict?.verdict === "left"
-      ? category.option_left
-      : verdict?.verdict === "right"
-      ? category.option_right
-      : null;
+  const winnerLabel = verdict ? resolveVerdictLabel(category, verdict.verdict) : null;
+  const options = getOptions(category);
+  const voteDate = getVerdictDate(category);
 
   return (
     <div className="glass-strong rounded-3xl p-6 sm:p-8 shadow-lg shadow-kelly-500/5 hover:shadow-xl hover:shadow-kelly-500/10 hover:-translate-y-0.5 transition-all duration-300 group">
@@ -25,9 +22,16 @@ export function VerdictCard({ category, verdict, voteCounts }: Props) {
               {category.name}
             </h2>
           </Link>
-          {category.description && (
-            <p className="text-gray-500 text-sm mt-1">{category.description}</p>
-          )}
+          <div className="flex items-center gap-2 mt-1">
+            {category.description && (
+              <p className="text-gray-500 text-sm">{category.description}</p>
+            )}
+            {!category.is_daily && (
+              <span className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                Permanent
+              </span>
+            )}
+          </div>
         </div>
         <Link
           href={`/${category.slug}`}
@@ -44,7 +48,9 @@ export function VerdictCard({ category, verdict, voteCounts }: Props) {
               &#9757;
             </div>
             <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Peter kiest vandaag</p>
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+                {category.is_daily ? "Peter kiest vandaag" : "Peter vindt"}
+              </p>
               <p className="font-extrabold text-xl sm:text-2xl text-gray-900">{winnerLabel}</p>
             </div>
           </div>
@@ -55,17 +61,17 @@ export function VerdictCard({ category, verdict, voteCounts }: Props) {
           )}
           <VoteButtons
             categoryId={category.id}
-            optionLeft={category.option_left}
-            optionRight={category.option_right}
+            options={options}
             voteCounts={voteCounts}
-            petersChoice={verdict.verdict as "left" | "right"}
+            petersChoice={verdict.verdict}
+            voteDate={voteDate}
           />
         </div>
       ) : (
         <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
           <p className="text-4xl mb-2 animate-bounce">&#129300;</p>
           <p className="text-gray-500 font-medium">
-            Peter heeft zich nog niet uitgesproken vandaag
+            Peter heeft zich nog niet uitgesproken{category.is_daily ? " vandaag" : ""}
           </p>
         </div>
       )}
