@@ -11,12 +11,7 @@ type Props = {
 };
 
 export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts }: Props) {
-  const [state, formAction, isPending] = useActionState(
-    async (_prev: { error?: string }, formData: FormData) => {
-      return await castVote(formData);
-    },
-    {}
-  );
+  const [state, formAction, isPending] = useActionState(castVote, {});
 
   const leftPercent =
     voteCounts.total > 0

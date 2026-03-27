@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { sql } from "@/lib/db";
 import crypto from "crypto";
 
-export async function castVote(formData: FormData): Promise<{ error?: string }> {
+export async function castVote(_prevState: { error?: string }, formData: FormData): Promise<{ error?: string }> {
   const categoryId = parseInt(formData.get("category_id") as string);
   const vote = formData.get("vote") as string;
 
