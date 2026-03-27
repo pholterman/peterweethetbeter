@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { castVote } from "@/app/actions/vote";
 
 type Props = {
@@ -10,8 +10,31 @@ type Props = {
   voteCounts: { left: number; right: number; total: number };
 };
 
+async function getFingerprint(): Promise<string> {
+  const parts = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width + "x" + screen.height,
+    screen.colorDepth,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.hardwareConcurrency || "",
+    (navigator as unknown as { deviceMemory?: number }).deviceMemory || "",
+    navigator.maxTouchPoints || 0,
+  ];
+  const raw = parts.join("|");
+  const msgBuffer = new TextEncoder().encode(raw);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts }: Props) {
   const [state, formAction, isPending] = useActionState(castVote, {});
+  const [fingerprint, setFingerprint] = useState("");
+
+  useEffect(() => {
+    getFingerprint().then(setFingerprint);
+  }, []);
 
   const leftPercent =
     voteCounts.total > 0
@@ -29,9 +52,10 @@ export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts }:
         <form action={formAction} className="flex-1">
           <input type="hidden" name="category_id" value={categoryId} />
           <input type="hidden" name="vote" value="left" />
+          <input type="hidden" name="fingerprint" value={fingerprint} />
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || !fingerprint}
             className="w-full bg-kelly-500 text-white font-bold rounded-xl px-4 py-4 text-base hover:bg-kelly-400 hover:scale-105 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:hover:scale-100 animate-pulse-green"
           >
             {optionLeft}
@@ -43,9 +67,10 @@ export function VoteButtons({ categoryId, optionLeft, optionRight, voteCounts }:
         <form action={formAction} className="flex-1">
           <input type="hidden" name="category_id" value={categoryId} />
           <input type="hidden" name="vote" value="right" />
+          <input type="hidden" name="fingerprint" value={fingerprint} />
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || !fingerprint}
             className="w-full bg-kelly-500 text-white font-bold rounded-xl px-4 py-4 text-base hover:bg-kelly-400 hover:scale-105 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:hover:scale-100 animate-pulse-green"
           >
             {optionRight}
