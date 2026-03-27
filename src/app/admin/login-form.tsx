@@ -32,7 +32,7 @@ export function LoginForm() {
           disabled={isPending}
           className="w-full bg-kelly-500 text-white font-bold rounded-xl px-4 py-3 text-lg hover:bg-kelly-400 hover:scale-105 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:hover:scale-100"
         >
-          {isPending ? "Bezig... &#9203;" : "Inloggen &#128073;"}
+          {isPending ? "Bezig..." : "Inloggen"}
         </button>
       </form>
     </div>
